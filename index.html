@@ -16,22 +16,21 @@ var color = d3.scale.category20()
 
 var debug = true
 var debugAppend = false
-//var maxSteps = 100
-var maxSteps = 100
 var rotateTimeout
+
 var width = 200
 var height = 200
-
 var dim = { height: height,
             width: width }
 var dimpx = { height: height + "px",
               width: width + "px" }
+
+var interval = 100
 var rotateRadius = 40
 var circleRadius = 10
-var times = 0
-var interval = 100
-var initialSpeed = 0
 var catchupSpeed = 0.5
+
+var initialSpeed = 0.1
 var data = [
     [Math.PI/3,     initialSpeed],
     [0,             initialSpeed],
@@ -78,7 +77,6 @@ function handlePointAddition(d) {
             diff = itarg - d[i][0]
             rateDiff = neighbor[1] - d[i][1]
             d[i][1] = (itarg - d[i][0]) % (Math.PI*2)
-            //console.log(d[2][1])
         }
     }
     return d
