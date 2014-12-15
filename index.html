@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" type="text/css" href="style/main.css" />
+<link rel="stylesheet" type="text/css" href="style/d3.slider.css" />
+<script src="/js/d3.v3.min.js"></script>
+<script src="/js/d3.slider.js"></script>
+<body onload="main()">
+
+<div class="wrapper">
+</div>
+
+<script type="text/javascript">
+
+var doStuff = true
+var color = d3.scale.category20()
+
+var debug = true
+var debugAppend = false
+//var maxSteps = 100
+var maxSteps = 100
+var rotateTimeout
+var width = 200
+var height = 200
+
+var dim = { height: height,
+            width: width }
+var dimpx = { height: height + "px",
+              width: width + "px" }
+var rotateRadius = 40
+var circleRadius = 10
+var times = 0
+var interval = 100
+var initialSpeed = 0
+var catchupSpeed = 0.5
+var data = [
+    [Math.PI/3,     initialSpeed],
+    [0,             initialSpeed],
+    [2 * Math.PI/3, initialSpeed]
+]
+
+var wrapper = d3.select(".wrapper")
+
+function addPoint() {
+    data = data.concat([data[0].slice(0)])
+}
+
+function removePoint() {
+    data.pop()
+}
+function dPoint(d) {
+    // Apply each of the derivatives
+    for( i = 0; i < d.length; i++ ) {
+        for( j = 1; j < d[i].length; j++ ) {
+            d[i][j-1] += d[i][j];
+        }
+        d[i][0] %= (2*Math.PI)
+    }
+    return d
+}
+
+function circularIndex(arr, index) {
+    while ( index > arr.length - 1 )
+        index -= arr.length
+    while ( index < 0 )
+        index += arr.length
+    return arr[index]
+}
+
+function handlePointAddition(d) { 
+    if ( d.length > 1 )
+    {
+        var target = 2 * Math.PI / d.length
+        var threshold = 0.1
+        var radDiff = d[1][0] - d[0][0]
+        for( i=1; i < d.length; i++) {
+            neighbor = circularIndex(d, i-1)
+            itarg = ((target% (Math.PI*2)) + neighbor[0]) 
+            diff = itarg - d[i][0]
+            rateDiff = neighbor[1] - d[i][1]
+            d[i][1] = (itarg - d[i][0]) % (Math.PI*2)
+            //console.log(d[2][1])
+        }
+    }
+    return d
+}
+
+function rotate() {
+    data = handlePointAddition(data)
+    data = dPoint(data)
+
+    if (debug) {
+        db = d3.select(".databox")
+        db.text((debugAppend ? db.text() + "\n\n" : "") + JSON.stringify(data))
+    }
+
+    circ = d3.select(".main-svg").selectAll(".rotateme")
+        .data(data)
+
+    circ.exit().remove()
+
+    circ.enter().append("circle")
+        .attr("class", "rotateme")
+        .attr("r", circleRadius)
+        .call(styleMe)
+
+    circ.transition().duration(interval)
+        .attr("cx", function(d) { return 100 + Math.cos(d[0]) * rotateRadius; })
+        .attr("cy", function(d) { return 100 + Math.sin(d[0]) * rotateRadius; })
+
+    circ = d3.select(".main-svg").select(".circpath")
+        .attr("r", rotateRadius)
+}
+
+function main() {
+    addElements()
+    dispatch()
+}
+
+function addElements() {
+    addSvg()
+    d3.select("svg").append("circle")
+        .attr("class", "circpath")
+        .attr("cx", 100)
+        .attr("cy", 100)
+        .attr("r", rotateRadius)
+        .attr("fill", "none")
+        .attr("stroke", "black")
+        .attr("stroke-dasharray", "5,5")
+    addDataBox()
+    addControlButtons()
+    addSpeedSlider()
+    addRotateRadiusSlider()
+}
+
+function addSvg() {
+    wrapper.append("svg").attr("class", "main-svg")
+        .style(dimpx)
+}
+
+function addDataBox() {
+    wrapper.append("textarea")
+        .attr("class", "databox")
+        .text(JSON.stringify(data))
+        .style(dimpx)
+}
+
+function addRotateRadiusSlider() {
+    wrapper
+      .append("div")
+        .attr("class", "d3-slider")
+        .style({
+            width: dimpx.width
+        })
+        .call(d3.slider()
+            .value(rotateRadius)
+            .min(0)
+            .max(90)
+.axis(d3.svg.axis())
+            .on("slide", rotateRadiusSlide)
+        )
+}
+
+function rotateRadiusSlide(evt, val) {
+    rotateRadius = val
+}
+
+function addSpeedSlider() {
+    wrapper
+      .append("div")
+        .attr("class", "d3-slider")
+        .style({
+            width: dimpx.width
+        })
+        .call(d3.slider()
+            .value(initialSpeed)
+            .min(0)
+            .max(1)
+            .axis(true)
+            .on("slide", speedSlide)
+        )
+}
+
+function speedSlide(evt, val) {
+    data = data.map(function(d) { d[1] = val; return d })
+}
+
+function addControlButtons() {
+    butts = wrapper.append("div")
+        .attr("class", "buttons")
+    butts.append("button")
+        .text("Add Point")
+        .on("click", addPoint)
+    butts.append("button")
+        .text("Remove Point")
+        .on("click", removePoint)
+    butts.append("button")
+        .text( doStuff ? "stop" : "start" )
+        .on("click", startStop)
+}
+
+function startStop() {
+    doStuff = !doStuff
+    butt = d3.select(this)
+        .text( doStuff ? "stop" : "start" )
+    dispatch()
+}
+
+function styleMe() {
+    this.attr("fill", function(d, i) { return color(i)})
+        .attr("stroke", "black")
+}
+
+function dispatch() {
+    if ( doStuff ) { 
+        rotateTimeout = setInterval(rotate, interval)
+    } else {
+        window.clearInterval(rotateTimeout)
+    }
+}
+
+
+
+
+
+</script>
+</body>

@@ -1,0 +1,55 @@
+.wrapper {
+    width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-svg {
+    border: 1px solid #aaaaaa;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+body {
+  font: 10px sans-serif;
+}
+
+td {
+    Submitborder: 1px solid #d4d4d4;
+    Submitpadding: 5px;
+    Submitpadding-top: 7px;
+    Submitpadding-bottom: 7px;
+    Submitvertical-align: top;
+}
+
+.d3-slider-horizontal {
+    margin-top: 1em;
+    margin-bottom: 2em;
+}
