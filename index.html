@@ -73,10 +73,9 @@ function handlePointAddition(d) {
         var radDiff = d[1][0] - d[0][0]
         for( i=1; i < d.length; i++) {
             neighbor = circularIndex(d, i-1)
-            itarg = ((target% (Math.PI*2)) + neighbor[0]) 
+            itarg = ((target % (Math.PI*2)) + neighbor[0] + neighbor[1])
             diff = itarg - d[i][0]
-            rateDiff = neighbor[1] - d[i][1]
-            d[i][1] = (itarg - d[i][0]) % (Math.PI*2)
+            d[i][1] = (diff) % (Math.PI*2)
         }
     }
     return d
